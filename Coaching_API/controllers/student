@@ -1,9 +1,0 @@
-const students = require("../studentsData");
-
-function getAllStudents(req, res) {
-    res.send(students);
-}
-
-module.exports = {
-    getAllStudents,
-}
