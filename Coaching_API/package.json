@@ -10,7 +10,10 @@
   "author": "Nitish236",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.18.2"
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "mongodb": "^5.0.1",
+    "mongoose": "^6.9.2"
   },
   "devDependencies": {
     "@types/node": "^18.13.0"

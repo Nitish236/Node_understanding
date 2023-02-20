@@ -1,8 +1,9 @@
-const students = require("../studentsData");
+//const students = require("../studentsData");
 
 // Gets all students
-function getAllStudents(req, res) {
-    if(students.length<1){
+async function getAllStudents(req, res) {
+
+    if(students){
         res.setHeader("Content-Type", "text/plain")
         res.status(404)
            .send("No students data found");
