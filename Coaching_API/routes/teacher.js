@@ -2,16 +2,15 @@ const express = require("express");
 const router = express.Router();
 
 const {
-    getStudentById,
-    updateStudent
-} = require("../controllers/student");
-
+    getTeacherById,
+    updateTeacher
+} = require("../controllers/teacher");
 
 
 router
       .route("/:id")
-      .get(getStudentById)
-      .patch(updateStudent)
+      .get(getTeacherById)
+      .patch(updateTeacher)
 
 
 module.exports = router;
