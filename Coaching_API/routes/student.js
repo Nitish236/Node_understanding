@@ -1,23 +1,18 @@
 const express = require("express");
-const Router = express.Router();
+const router = express.Router();
 
 const {
-    getAllStudents,
-    newStudent,
-    getById,
-    updateStudent,
-    deleteStudent
+    getStudentById,
+    updateStudent
 } = require("../controllers/student");
 
-Router.route("/")
-      .get(getAllStudents)
-      .post(newStudent)
-
-Router.route("/:id")
-      .get(getById)
-      .put(updateStudent)
-      .delete(deleteStudent)
 
 
-module.exports = Router;
+router
+      .route("/:id")
+      .get(getStudentById)
+      .patch(updateStudent)
+
+
+module.exports = router;
 

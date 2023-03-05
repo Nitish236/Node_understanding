@@ -1,23 +1,48 @@
-const express = require("express");
-const Router = express.Router();
+const express = require("express")
+const router = express.Router()
+
+const {
+    getAllStudents,
+    newStudent,
+    updateStudent,
+    deleteStudent,
+    getStudentById
+} = require("../controllers/student");
 
 const {
     getAllTeachers,
     newTeacher,
-    getById,
+    getTeacherById,
     updateTeacher,
     deleteTeacher
-} = require("../controllers/manager");
+} = require("../controllers/teacher");
 
-Router.route("/")
+
+// Manage Student 
+router
+      .route("/student/")
+      .get(getAllStudents)
+      .post(newStudent)
+      
+router
+      .route("/student/:id")
+      .get(getStudentById)
+      .patch(updateStudent)
+      .delete(deleteStudent)     
+
+
+// Manage Teacher
+router
+      .route("/teacher/")
       .get(getAllTeachers)
       .post(newTeacher)
 
-Router.route("/:id")
-      .get(getById)
-      .put(updateTeacher)
+router
+      .route("/teacher/:id")
+      .get(getTeacherById)
+      .patch(updateTeacher)
       .delete(deleteTeacher)
+      
 
 
-module.exports = Router;
-
+module.exports = router

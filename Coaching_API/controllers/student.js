@@ -1,105 +1,80 @@
-const students = require("../studentsData");
+const { StatusCodes } = require("http-status-codes")
+const { BadRequestError, NotFoundError } = require("../errors/index")
+
+// Student model
+const Student = require("../model/student")
 
 // Gets all students
-function getAllStudents(req, res) {
-    if(students.length<1){
-        res.setHeader("Content-Type", "text/plain")
-        res.status(404)
-           .send("No students data found");
+const getAllStudents = async (req, res) => {
+      const students = await Student.find()
+      
+      if(!students){
+         throw new NotFoundError('No students data found') 
+      }
 
-        return ;
-    }
-    
-    res.setHeader("Content-Type", "text/json")
-       .status(200).send(students);
+      res.status(StatusCodes.OK).json({ students, count: students.length })
 }
 
 
 // Create new student
-function newStudent(req, res){
-    console.log(req.body);
-    const {name, year, subjects} = req.body;
+const newStudent = async (req, res) => {
+    const student = await Student.create(req.body)
 
-    const createdStudent = {
-        id : students.length+1,
-        name : name,
-        year : year,
-        subjects : subjects,
-        batch : "B1"
-    }
-
-    students.push(createdStudent);
-    
-    console.log("New Student created.")
-    res.setHeader("Content-Type", "text/json")
-       .status(201).send(JSON.stringify(createdStudent))
+    console.log("New Student created -- ")
+    res.status(StatusCodes.OK).json({ student })
 }
 
 // Get the student by id
-function getById(req, res){
-    const studentID = req.params.id ;
-    
-    const student = students.find(({id}) => id===Number(studentID))
-    
-    if(!student){
-        res.setHeader("Content-Type", "text/plain")
-        res.status(404)
-           .send("No such student data found");
+const getStudentById = async (req, res) => {
+    const { params: {id: studentID} } = req 
 
-        return ;
+    const student = await Student.findOne({_id: studentID})
+
+    if(!student){
+        throw new NotFoundError('No such student exists')
     }
 
-    res.setHeader("Content-Type", "text/json")
-       .status(200).send(JSON.stringify(student));
+    res.status(200).json({ student });
 }
 
 // Update Student data
-function updateStudent(req, res){
-    const studentID = req.params.id ;
+const updateStudent = async (req, res) => {
+    const { body: {email, classYr, subjects, contact }, params: {id: studentID} } = req 
+    
+    if(email==="" || classYr===""){
+       throw new BadRequestError('Email, Class, Subjects, Contact should not be empty') 
+    }
 
-    const {year, subjects} = req.body;
-
-    const student = students.find(({id}) => id===Number(studentID));
+    const student = await Student.findByIdAndUpdate(
+                    { _id: studentID },
+                    req.body,
+                    { new: true, runValidators: true }
+                )
 
     if(!student){
-        res.setHeader("Content-Type", "text/plain")
-        res.status(404)
-           .send("No such student exist");
-
-        return ;
+        throw new NotFoundError('No such student exists')
     }
-    student.year = year;
-    student.subjects = subjects;
 
-    console.log("Information successfully updated \n",student);
-    res.setHeader("Content-Type", "text/json")
-       .status(201).send(JSON.stringify(student));
+    res.status(200).json({ student });
 }
 
 // Delete Student
-function deleteStudent(req, res){
-    const studentID = req.params.id ;
-    
-    const student = students.find(({id}) => id===Number(studentID));
+const deleteStudent = async (req, res) => {
+    const { params: {id: studentID} } = req 
+
+    const student = await Student.findByIdAndDelete({_id: studentID})
 
     if(!student){
-        res.setHeader("Content-Type", "text/plain")
-        res.status(404)
-           .send("No such student exist");
-
-        return ;
+        throw new NotFoundError('No such student exists')
     }
 
-    console.log("Student Data deleted :- id : ",studentID);
-    res.setHeader("Content-Type", "text/plain")
-    res.status(200)
-       .send("Student data deleted");
+    res.status(200).json({ msg: "Student data deleted" });
 }
 
 module.exports = {
     getAllStudents,
     newStudent,
-    getById,
+    getStudentById,
     updateStudent,
     deleteStudent,
 }
