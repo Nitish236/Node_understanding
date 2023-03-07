@@ -8,7 +8,7 @@ const Student = require("../model/student")
 const getAllStudents = async (req, res) => {
       const students = await Student.find()
       
-      if(!students){
+      if(students.length==0){
          throw new NotFoundError('No students data found') 
       }
 
@@ -20,8 +20,7 @@ const getAllStudents = async (req, res) => {
 const newStudent = async (req, res) => {
     const student = await Student.create(req.body)
 
-    console.log("New Student created -- ")
-    res.status(StatusCodes.OK).json({ student })
+    res.status(StatusCodes.OK).json({ student, msg: 'New student created successfully' })
 }
 
 // Get the student by id
@@ -34,14 +33,14 @@ const getStudentById = async (req, res) => {
         throw new NotFoundError('No such student exists')
     }
 
-    res.status(200).json({ student });
+    res.status(200).json({ student, msg: 'Got the student details' });
 }
 
 // Update Student data
 const updateStudent = async (req, res) => {
     const { body: {email, classYr, subjects, contact }, params: {id: studentID} } = req 
     
-    if(email==="" || classYr===""){
+    if(email==="" || classYr==="" || subjects.length==0){
        throw new BadRequestError('Email, Class, Subjects, Contact should not be empty') 
     }
 
@@ -55,7 +54,7 @@ const updateStudent = async (req, res) => {
         throw new NotFoundError('No such student exists')
     }
 
-    res.status(200).json({ student });
+    res.status(200).json({ student, msg: 'Successfully Updated' });
 }
 
 // Delete Student
@@ -68,7 +67,7 @@ const deleteStudent = async (req, res) => {
         throw new NotFoundError('No such student exists')
     }
 
-    res.status(200).json({ msg: "Student data deleted" });
+    res.status(200).json({ msg: "Student data deleted successfully" });
 }
 
 module.exports = {
