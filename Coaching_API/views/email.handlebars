@@ -7,12 +7,12 @@
 </head>
 <body>
   <h2>Hello {{userName}}! </h2>
-  <p>We're glad that you joined our Coaching institute. </p>
-  <p>Here are your Login credentials :- </p>
-  <h6>Email :- {{userEmail}}</h6>
-  <h6>Password :- {{userPassword}}</h6>
+  <p class="intro">We're glad that you joined our Coaching institute as a <b>{{role}}</b>. </p> <br>
+  <h3>Here are your <strong>Login credentials</strong> :- </h3>
+  <h4>Email :- {{userEmail}}</h4>
+  <h4>Password :- {{userPassword}}</h4> </p><br>
 
-  <p>You are successfully registered for this session {{sessionStart}} - {{sessionEnd}} .</p>
-  <h5>We wish you luck for your future!</h5>
+  <p class="conclusion">You are successfully registered for the <b>{{sessionStart}} - {{sessionEnd}}</b> session.</p>
+  <h4>We wish you luck for your future!</h4>
 </body>
 </html>

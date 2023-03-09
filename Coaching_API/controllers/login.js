@@ -1,10 +1,13 @@
 const { StatusCodes } = require("http-status-codes")
-const { UnauthenticatedError } = require("../../../../Downloads/node-express-course-main/06-jobs-api/starter/errors")
-const { BadRequestError, NotFoundError } = require("../errors")
+const { BadRequestError, UnauthenticatedError } = require("../errors")
 
 // Schemas
 const Student = require("../model/student")
 const Teacher = require("../model/teacher")
+const Manager = require("../model/manager")
+
+
+// Login function
 
 const login = async (req, res) => {
       const { email, password, role } = req.body
@@ -13,43 +16,47 @@ const login = async (req, res) => {
           throw new BadRequestError('Email, password and role are required')
       }
 
-      let user = null ;
+      let user = undefined ;
       if(role==='Student'){
-          user = await Student.findOne({ email })
+          user = await Student.findOne({ email, role })
       }
       else if(role==='Teacher'){
-          user = await Teacher.findOne({ email })
+          user = await Teacher.findOne({ email, role })
       }
-    //   else if(role==='Manager'){
-    //     user = await student.findOne({ email })
-    //   }
+      else if(role==='Manager'){
+          user = await Manager.findOne({ email, role })
+      }
       
-      // console.log(user) ;
+      //console.log(user) ;
       if(!user){
          throw new UnauthenticatedError(`Email or role is incorrect`)
       }
       
-    //   let pass = null 
-    //   if(role==='Student'){
-    //     passMatch = await Student.comparePassword(password)
-    //   }
-    //   else if(role==='Teacher'){
-    //     passMatch = await Teacher.comparePassword(password)
-    //   }
-    // //   else if(role==='Manager'){
-    // //     user = await student.findOne({ email })
-    // //   }
+      let passMatch = undefined 
+      if(role==='Student'){
+        passMatch = await user.comparePassword(password)
+      }
+      else if(role==='Teacher'){
+        passMatch = await user.comparePassword(password)
+      }
+      else if(role==='Manager'){
+        passMatch = await user.comparePassword(password)
+      }
       
-    //   if(!passMatch){
-    //      throw new UnauthenticatedError('Invalid credentials')
-    //   }
+      //console.log(passMatch)
+      if(!passMatch){
+         throw new UnauthenticatedError('Invalid credentials')
+      }
 
       let token = undefined
       if(role==='Student'){
         token = user.createJWT() ;
       }else if(role==='Teacher'){
         token = user.createJWT() ;
+      }else if(role==='Manager'){
+        token = user.createJWT() ;
       }
+      // console.log(token)
 
       res.status(StatusCodes.OK).json({ user: {name: user.name, role: user.role}, token })
 }

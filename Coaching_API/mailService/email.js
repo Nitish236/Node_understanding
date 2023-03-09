@@ -2,18 +2,18 @@ require("dotenv").config()
 
 const hbs = require('nodemailer-express-handlebars')
 const nodemailer = require('nodemailer')
-const path = require('path')
+const path = require('path');
+const { MailError } = require("../errors");
 
 
 const transporter = nodemailer.createTransport({
-    host: 'smtp.ethereal.email',
+    service: "gmail",
+    host: "smtp.gmail.com",
     port: 587,
+    secure: true,
     auth: {
-        user: 'faustino.schiller24@ethereal.email',
-        pass: 'PY19xcQxBf53B9dg72'
-    },
-    tls:{
-        rejectUnauthorized:false
+       user: process.env.MAIL_USER,
+       pass: process.env.MAIL_PASSWORD
     }
 });
 
@@ -30,14 +30,15 @@ transporter.use('compile', hbs(handlebarOptions))
 
 
 let mailOptions = {
-    from: 'faustino.schiller24@ethereal.email',
+    from: process.env.SENDER_MAIL,
     to: '', 
     subject: 'Welcome Mail!',
     template: 'email',
     context:{
         userName: "",
         userEmail: "",
-        userPassword: ""
+        userPassword: "",
+        role: ""
     }
 };
 
@@ -51,12 +52,12 @@ const sendEmail = async (user) => {
       mailOptions.context.sessionStart = date.getFullYear()
       mailOptions.context.sessionEnd = date.getFullYear() + 1 
       
-      console.log(mailOptions) ;
+      //console.log(mailOptions) ;
       transporter.sendMail(mailOptions, (error) => {
           if(error){
-             console.log(error) ;
+             throw new MailError('Something wrong happened while sending mail')
           }
-      })
+      }) 
 }
 
 module.exports = sendEmail

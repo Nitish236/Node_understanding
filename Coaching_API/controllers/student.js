@@ -1,6 +1,9 @@
 const { StatusCodes } = require("http-status-codes")
 const { BadRequestError, NotFoundError } = require("../errors/index")
 
+const bcrypt = require("bcrypt");
+const sendEmail = require("../mailService/email");
+
 // Student model
 const Student = require("../model/student")
 
