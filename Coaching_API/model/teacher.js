@@ -1,12 +1,12 @@
 require("dotenv").config()
 
 const mongoose = require("mongoose")
-const { Schema, model } = require("mongoose");
 const bcrypt = require("bcrypt");
 const generatePass = require("generate-password")
 const jwt = require("jsonwebtoken")
+const sendEmail = require("../mailService/email")
 
-const teacherSchema = new Schema({
+const teacherSchema = new mongoose.Schema({
      name: {
         type: String,
         required: [true, "Provide Student's name"],
@@ -40,6 +40,10 @@ const teacherSchema = new Schema({
          degree: { type: String, required: true },
          experience: {type: Number, required: true },
      },
+     address: {
+       type: String,
+       required: [true, "Address is required"],
+     },
      subjects: {
          type: Array
      }
@@ -49,27 +53,39 @@ teacherSchema.pre('save', async function(){
    this.password 
         = generatePass.generate({
                 length: 8,
-                numbers: true,
-                symbols: true,                      
+                numbers: true,                      
           })
 })
 
-teacherSchema.pre('save', async function(){
+teacherSchema.pre('save', async function() {
+   const pass = this.password
+
    const salt = await bcrypt.genSalt(10)
    this.password = await bcrypt.hash(this.password, salt)
+   
+   const user = {
+      email: this.email ,
+      context: {
+          userName: this.name ,
+          userEmail: this.email ,
+          userPassword: pass ,
+          role: this.role,
+      }
+   }
+   sendEmail(user)
 })
 
 teacherSchema.methods.createJWT = function () {
-   return jwt.sign({ userId: this._id, name: this.name }, 
+   return jwt.sign({ userId: this._id, name: this.name, role: this.role }, 
                    process.env.JWT_SECRET,
                    { expiresIn: process.env.JWT_EXPIRE }
                   )
 }
 
 teacherSchema.methods.comparePassword = async function(pass) {
-   const isMatch = bcrypt.compare(pass, this.password)
+   const isMatch = await bcrypt.compare(pass, this.password)
 
    return isMatch
 }
 
-module.exports = model("Teacher", teacherSchema)
+module.exports = mongoose.model("Teacher", teacherSchema)

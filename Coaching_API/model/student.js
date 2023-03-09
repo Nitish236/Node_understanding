@@ -1,10 +1,10 @@
 require("dotenv").config()
 
 const mongoose = require("mongoose")
-const bcrypt = require("bcrypt");
 const generatePass = require("generate-password")
 const jwt = require("jsonwebtoken");
-const sendEmail = require("../mailService/email");
+const bcrypt = require("bcrypt");
+const sendEmail = require("../mailService/email")
 
 const studentSchema = new mongoose.Schema({
      name: {
@@ -41,41 +41,47 @@ const studentSchema = new mongoose.Schema({
         parent: {type: Number, required: true },
         student: {type: Number, required: true, }
      },
+     address: {
+        type: String,
+        required: [true, "Address is required"]
+     }
 }, { timestamps: true } )
 
-studentSchema.pre('save', async function(){
-      this.password 
-          = generatePass.generate({
-                  length: 8,
-                  numbers: true,
-                  symbols: true,                      
-            })
 
-      // const user = {
-      //          email: this.email ,
-      //          context: {
-      //              userName: this.name ,
-      //              userEmail: this.email ,
-      //              userPassword: this.password ,
-      //          }
-      // }
-      // sendEmail(user) 
+studentSchema.pre('save', function(){
+      this.password  = generatePass.generate({
+                  length: 8,
+                  numbers: true                      
+            })
 })
 
-studentSchema.pre('save', async function(){
+studentSchema.pre('save', async function() {
+   const pass = this.password
+
    const salt = await bcrypt.genSalt(10)
-   this.password = bcrypt.hash(this.password, salt)
+   this.password = await bcrypt.hash(this.password, salt)
+   
+   const user = {
+      email: this.email ,
+      context: {
+          userName: this.name ,
+          userEmail: this.email ,
+          userPassword: pass ,
+          role: this.role,
+      }
+   }
+   sendEmail(user)
 })
 
 studentSchema.methods.createJWT = function () {
-   return jwt.sign({ userId: this._id, name: this.name }, 
+   return jwt.sign({ userId: this._id, name: this.name, role: this.role }, 
                    process.env.JWT_SECRET,
                    { expiresIn: process.env.JWT_EXPIRE }
                   )
 }
 
 studentSchema.methods.comparePassword = async function(pass) {
-   const isMatch = bcrypt.compare(pass, this.password)
+   const isMatch = await bcrypt.compare(pass, this.password)
 
    return isMatch
 }

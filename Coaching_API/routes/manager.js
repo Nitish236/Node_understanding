@@ -43,6 +43,4 @@ router
       .patch(updateTeacher)
       .delete(deleteTeacher)
       
-
-
 module.exports = router

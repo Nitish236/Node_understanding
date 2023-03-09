@@ -12,7 +12,7 @@ const teacher = require("./routes/teacher");
 const manager = require("./routes/manager");
 
 // authenticate
-const authenticate = require("./middleware/authentication")
+const { authenticateUser, authorizePermissions } = require("./middleware/authentication")
 
 // error handler
 const notFoundMiddleware = require('./middleware/not-found');
@@ -23,9 +23,19 @@ app.use(express.json());
 
 // Routes
 app.use("/api/v1/auth", auth);
-app.use("/api/v1/students", authenticate, student);
-app.use("/api/v1/teachers", authenticate, teacher);
-app.use("/api/v1/manage", manager);
+app.use("/api/v1/students", authenticateUser, student);
+app.use("/api/v1/teachers", authenticateUser, teacher);
+app.use("/api/v1/manage",  authenticateUser, authorizePermissions("Manager"), manager);
+
+
+// For creating managers 
+
+// const Manager = require("./model/manager")
+// app.use("/api/v1/m", async (req,res)=>{
+//     const m = await Manager.create(req.body)
+
+//     res.status(200).json({ m, msg: 'New manager created successfully' })
+// })
 
 
 // Middleware
